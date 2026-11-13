@@ -113,7 +113,7 @@ public:
 
         _communicationI2C.I2cWriteReg(ADD_BMP180, REG_CTRL_MEAS, MOD_CTRL_OSS);
 
-        uint8_t calibration[22];
+        uint8_t calibration[22] = {};
 
         _communicationI2C.I2cReadRegs(ADD_BMP180, REG_CALIBRATION, calibration);
 

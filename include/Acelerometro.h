@@ -42,7 +42,7 @@ private:
 
         _offSetX = static_cast<int16_t>(sumX / takes);
         _offSetY = static_cast<int16_t>(sumY / takes);
-        
+
         _offSetZ = static_cast<int16_t>(sumZ / takes);
     }
 
@@ -59,7 +59,7 @@ public:
 
     Vector3 GetRawAcceleration()
     {
-        uint8_t dataAcceleration[6];
+        uint8_t dataAcceleration[6] = {};
         _communicationI2C.I2cReadRegs(ADD_MPU6050, REG_ACCEL_XOUT_H, dataAcceleration);
 
         Vector3 vectorAcceleration;
@@ -82,7 +82,7 @@ public:
 
     Vector3 GetGyro()
     {
-        uint8_t dataGyro[6];
+        uint8_t dataGyro[6] = {};
         _communicationI2C.I2cReadRegs(ADD_MPU6050, REG_GYRO_XOUT_H, dataGyro);
 
         Vector3 vectorGyro;
