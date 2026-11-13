@@ -95,7 +95,7 @@ public:
         return _acelerometro.GetGyro();
     }
 
-    float GetNPoleRadians()
+    int16_t GetNPoleRadians()
     {
         Vector3 mag = _brujula.GetDirection();
         Vector3 acc = _acelerometro.GetRawAcceleration();
@@ -122,14 +122,14 @@ public:
         float yHorizontal = my * cosRoll - mz * sinRoll;
 
         // 3. Calcular el rumbo hacia el Norte con las componentes ya niveladas y calcula los grado del radio
-        float  headingDeg = std::atan2(yHorizontal, xHorizontal) * (180.0f / 3.14159265f);
-        
+        float headingDeg = std::atan2(yHorizontal, xHorizontal) * (180.0f / 3.14159265f);
+
         // 5. Normalizar al rango de 0° a 360°
         if (headingDeg < 0.0f)
         {
             headingDeg += 360.0f;
         }
 
-        return headingDeg;
+        return static_cast<int16_t>(headingDeg);
     }
 };
