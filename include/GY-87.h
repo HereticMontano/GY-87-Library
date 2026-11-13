@@ -8,8 +8,6 @@
 class Gy87
 {
 private:
-    static constexpr float GRAVITY_MPS2 = 9.80665f; // 1g = 9.80665 m/s^2;
-
     Brujula _brujula;
     Acelerometro _acelerometro;
     Barometro _barometro;
@@ -23,7 +21,7 @@ public:
         _acelerometro.Initialice();
         _brujula.Initialize();
         _barometro.Initialice();
-        
+
         _lastMicros = micros();
     }
 
@@ -39,8 +37,8 @@ public:
 
     Vector3F GetAcceleration()
     {
-
         constexpr float ACCEL_LSB_2G = 16384.0f; // Escala por defecto (±2g)
+        constexpr float GRAVITY_MPS2 = 9.80665f; // 1g = 9.80665 m/s^2;
 
         Vector3 acceleration = _acelerometro.GetAcceleration();
 
@@ -57,12 +55,35 @@ public:
 
         Vector3F acc = GetAcceleration();
         uint32_t nowMicro = micros();
-        uint32_t dt = static_cast<float>(_lastMicros - nowMicro) / 1000000.0f;
+        float dt = static_cast<float>(nowMicro - _lastMicros) / 1000000.0f;
         _lastMicros = nowMicro;
 
-        _lastAcceleration.X += acc.X * dt;
-        _lastAcceleration.Y += acc.Y * dt;
-        _lastAcceleration.Z += (acc.Z - GRAVITY_MPS2) * dt;
+        if (static_cast<int32_t>(acc.X) != 0)
+        {
+            _lastAcceleration.X += acc.X * dt;
+        }
+        else
+        {
+            _lastAcceleration.X = 0;
+        }
+
+        if (static_cast<int32_t>(acc.Y) != 0)
+        {
+            _lastAcceleration.Y += acc.Y * dt;
+        }
+        else
+        {
+            _lastAcceleration.Y = 0;
+        }
+
+        if (static_cast<int32_t>(acc.Z) != 0)
+        {
+            _lastAcceleration.Z += acc.Z * dt;
+        }
+        else
+        {
+            _lastAcceleration.Z = 0;
+        }
 
         return std::sqrt(_lastAcceleration.X * _lastAcceleration.X +
                          _lastAcceleration.Y * _lastAcceleration.Y +
@@ -77,7 +98,7 @@ public:
     float GetNPoleRadians()
     {
         Vector3 mag = _brujula.GetDirection();
-        Vector3 acc = _acelerometro.GetAcceleration();
+        Vector3 acc = _acelerometro.GetRawAcceleration();
 
         float ax = static_cast<float>(acc.X);
         float ay = static_cast<float>(acc.Y);
@@ -105,7 +126,7 @@ public:
 
         if (headingRad < 0.0f)
         {
-            headingRad += 2.0f * 3.14159265f;
+            headingRad += 180.0f * 3.14159265f;
         }
 
         return headingRad;

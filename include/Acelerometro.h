@@ -20,28 +20,30 @@ private:
 
     int16_t _offSetX = 0;
     int16_t _offSetY = 0;
+    int16_t _offSetZ = 0;
 
     I2C _communicationI2C;
 
     void SetOffSet()
     {
-        _offSetX = 0;
-        _offSetY = 0;
-
         int32_t sumX = 0;
         int32_t sumY = 0;
+        int32_t sumZ = 0;
         constexpr uint8_t takes = 50;
 
         for (uint8_t i = 0; i < takes; i++)
         {
-            Vector3 acc = GetAcceleration();
+            Vector3 acc = GetRawAcceleration();
             sumX += acc.X;
             sumY += acc.Y;
+            sumZ += acc.Z;
             delay(2); // Pequeña pausa para que el sensor a 44Hz tenga una muestra nueva
         }
 
         _offSetX = static_cast<int16_t>(sumX / takes);
         _offSetY = static_cast<int16_t>(sumY / takes);
+        
+        _offSetZ = static_cast<int16_t>(sumZ / takes);
     }
 
 public:
@@ -55,15 +57,25 @@ public:
         SetOffSet();
     };
 
-    Vector3 GetAcceleration()
+    Vector3 GetRawAcceleration()
     {
         uint8_t dataAcceleration[6];
         _communicationI2C.I2cReadRegs(ADD_MPU6050, REG_ACCEL_XOUT_H, dataAcceleration);
 
         Vector3 vectorAcceleration;
-        vectorAcceleration.X = static_cast<int16_t>(dataAcceleration[0] << 8 | dataAcceleration[1]) - _offSetX;
-        vectorAcceleration.Y = static_cast<int16_t>(dataAcceleration[2] << 8 | dataAcceleration[3]) - _offSetY;
+        vectorAcceleration.X = static_cast<int16_t>(dataAcceleration[0] << 8 | dataAcceleration[1]);
+        vectorAcceleration.Y = static_cast<int16_t>(dataAcceleration[2] << 8 | dataAcceleration[3]);
         vectorAcceleration.Z = static_cast<int16_t>(dataAcceleration[4] << 8 | dataAcceleration[5]);
+
+        return vectorAcceleration;
+    };
+
+    Vector3 GetAcceleration()
+    {
+        Vector3 vectorAcceleration = GetRawAcceleration();
+        vectorAcceleration.X -= _offSetX;
+        vectorAcceleration.Y -= _offSetY;
+        vectorAcceleration.Z -= _offSetZ;
 
         return vectorAcceleration;
     };
