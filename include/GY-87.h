@@ -121,14 +121,15 @@ public:
         float xHorizontal = mx * cosPitch + my * sinRoll * sinPitch + mz * cosRoll * sinPitch;
         float yHorizontal = my * cosRoll - mz * sinRoll;
 
-        // 3. Calcular el rumbo hacia el Norte con las componentes ya niveladas
-        float headingRad = std::atan2(yHorizontal, xHorizontal);
-
-        if (headingRad < 0.0f)
+        // 3. Calcular el rumbo hacia el Norte con las componentes ya niveladas y calcula los grado del radio
+        float  headingDeg = std::atan2(yHorizontal, xHorizontal) * (180.0f / 3.14159265f);
+        
+        // 5. Normalizar al rango de 0° a 360°
+        if (headingDeg < 0.0f)
         {
-            headingRad += 180.0f * 3.14159265f;
+            headingDeg += 360.0f;
         }
 
-        return headingRad;
+        return headingDeg;
     }
 };
