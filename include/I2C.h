@@ -22,7 +22,7 @@ public:
 
     template <uint8_t N>
     void I2cRead(uint8_t devAddr, uint8_t (&dest)[N])
-    {        
+    {
         Wire.requestFrom(devAddr, N);
 
         for (uint8_t i = 0; i < N && Wire.available(); i++)
