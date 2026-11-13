@@ -8,9 +8,14 @@
 class Gy87
 {
 private:
+    static constexpr float GRAVITY_MPS2 = 9.80665f; // 1g = 9.80665 m/s^2;
+
     Brujula _brujula;
     Acelerometro _acelerometro;
     Barometro _barometro;
+
+    uint32_t _lastMicros;
+    Vector3F _lastAcceleration;
 
 public:
     void Initialice()
@@ -18,6 +23,8 @@ public:
         _acelerometro.Initialice();
         _brujula.Initialize();
         _barometro.Initialice();
+        
+        _lastMicros = micros();
     }
 
     float GetTemprature()
@@ -30,11 +37,10 @@ public:
         return _barometro.GetAltitud();
     }
 
-    Vector3F GetAccelareation()
+    Vector3F GetAcceleration()
     {
 
         constexpr float ACCEL_LSB_2G = 16384.0f; // Escala por defecto (±2g)
-        constexpr float GRAVITY_MPS2 = 9.80665f; // 1g = 9.80665 m/s^2
 
         Vector3 acceleration = _acelerometro.GetAcceleration();
 
@@ -44,6 +50,23 @@ public:
         accelerationF.Z = (static_cast<float>(acceleration.Z) / ACCEL_LSB_2G) * GRAVITY_MPS2;
 
         return accelerationF;
+    }
+
+    float GetLinearAcceleration()
+    {
+
+        Vector3F acc = GetAcceleration();
+        uint32_t nowMicro = micros();
+        uint32_t dt = static_cast<float>(_lastMicros - nowMicro) / 1000000.0f;
+        _lastMicros = nowMicro;
+
+        _lastAcceleration.X += acc.X * dt;
+        _lastAcceleration.Y += acc.Y * dt;
+        _lastAcceleration.Z += (acc.Z - GRAVITY_MPS2) * dt;
+
+        return std::sqrt(_lastAcceleration.X * _lastAcceleration.X +
+                         _lastAcceleration.Y * _lastAcceleration.Y +
+                         _lastAcceleration.Z * _lastAcceleration.Z);
     }
 
     Vector3 GetGyro()

@@ -39,14 +39,16 @@ void loop(Gy87 &gy87)
     Serial.println("Gyro X: " + String(gyro.X) + " | Gyro  Y: " + String(gyro.Y) +
                    " | Gyro Z: " + String(gyro.Z));
 
-    Vector3F acceleration = gy87.GetAccelareation();
+    Vector3F acceleration = gy87.GetAcceleration();
 
     Serial.println("V X: " + String(acceleration.X) + " | V Y: " + String(acceleration.Y) +
                    " | V Z: " + String(acceleration.Z));
+
+    Serial.println("Velocidad: " + String(gy87.GetLinearAcceleration()) + " m/s");
 
     Serial.println("Cº: " + String(gy87.GetTemprature()));
 
     Serial.println("hPa: " + String(gy87.GetPresure()));
 
-    delay(1000);
+    delay(10);
 }
