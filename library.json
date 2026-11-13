@@ -1,0 +1,8 @@
+{
+  "name": "GY-87-Library",
+  "version": "1.0.0",
+  "build": {
+    "includeDir": "include",
+    "srcDir": "include"
+  }
+}
