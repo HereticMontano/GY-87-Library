@@ -1,7 +1,7 @@
 #pragma once
-#include <Arduino.h>
 #include "Common.h"
 #include "I2C.h"
+#include <array>
 
 class Brujula
 {
@@ -21,26 +21,23 @@ private:
   static constexpr uint8_t MOD_ODR = (0b00 << 2);
   static constexpr uint8_t MOD_CONTINUES_MESURING = (0b01 << 0);
 
-  I2C _communicationI2C;
+  I2C _communicationI2C = I2C(ADD_QMC5883L);
 
 public:
   void Initialize()
   {
-
-    _communicationI2C.I2cWriteReg(ADD_QMC5883L, REG_SET_QMC5883L, SET_PERIOD);
-    _communicationI2C.I2cWriteReg(ADD_QMC5883L, REG_MOD_QMC5883L,
+    _communicationI2C.Init();
+    _communicationI2C.I2cWriteReg(REG_SET_QMC5883L, SET_PERIOD);
+    _communicationI2C.I2cWriteReg(REG_MOD_QMC5883L,
                                   MOD_OSR | MOD_RNG | MOD_ODR | MOD_CONTINUES_MESURING);
   }
 
   Vector3 GetDirection()
   {
-    uint8_t data[6] = {};
-    _communicationI2C.I2cReadRegs(ADD_QMC5883L, REG_SENSOR_START, data);
-    Vector3 magData;
-    magData.X = static_cast<int16_t>((data[1] << 8) | data[0]);
-    magData.Y = static_cast<int16_t>((data[3] << 8) | data[2]);
-    magData.Z = static_cast<int16_t>((data[5] << 8) | data[4]);
-
-    return magData;
+    std::array<uint8_t, 6> data = _communicationI2C.I2cReadRegs<6>(REG_SENSOR_START);
+    return {
+        .X = static_cast<int16_t>((data[1] << 8) | data[0]),
+        .Y = static_cast<int16_t>((data[3] << 8) | data[2]),
+        .Z = static_cast<int16_t>((data[5] << 8) | data[4])};
   }
 };

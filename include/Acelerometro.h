@@ -1,7 +1,8 @@
 #pragma once
-#include <Wire.h>
 #include "Common.h"
 #include "I2C.h"
+#include <array>
+#include <esp_rom_sys.h>
 
 class Acelerometro
 {
@@ -22,7 +23,7 @@ private:
     int16_t _offSetY = 0;
     int16_t _offSetZ = 0;
 
-    I2C _communicationI2C;
+    I2C _communicationI2C = I2C(ADD_MPU6050);
 
     void SetOffSet()
     {
@@ -37,7 +38,7 @@ private:
             sumX += acc.X;
             sumY += acc.Y;
             sumZ += acc.Z;
-            delay(2); // Pequeña pausa para que el sensor a 44Hz tenga una muestra nueva
+            esp_rom_delay_us(2000); // Pause to the sensor have a new data
         }
 
         _offSetX = static_cast<int16_t>(sumX / takes);
@@ -49,25 +50,24 @@ private:
 public:
     void Initialice()
     {
-        _communicationI2C.I2cWriteReg(ADD_MPU6050, REG_PWR_MGMT_1, MPU_WAKE_UP);
-        _communicationI2C.I2cWriteReg(ADD_MPU6050, REG_INT_PIN_CFG, MPU_I2C_BYPASS_EN);
-        delay(10);
+        _communicationI2C.Init();
 
-        _communicationI2C.I2cWriteReg(ADD_MPU6050, REG_CONFIG, MODE_CONFIG);
+        _communicationI2C.I2cWriteReg(REG_PWR_MGMT_1, MPU_WAKE_UP);
+        _communicationI2C.I2cWriteReg(REG_INT_PIN_CFG, MPU_I2C_BYPASS_EN);
+        esp_rom_delay_us(10000);
+
+        _communicationI2C.I2cWriteReg(REG_CONFIG, MODE_CONFIG);
         SetOffSet();
     };
 
     Vector3 GetRawAcceleration()
     {
-        uint8_t dataAcceleration[6] = {};
-        _communicationI2C.I2cReadRegs(ADD_MPU6050, REG_ACCEL_XOUT_H, dataAcceleration);
+        std::array<uint8_t, 6> dataAcceleration = _communicationI2C.I2cReadRegs<6>(REG_ACCEL_XOUT_H);
 
-        Vector3 vectorAcceleration;
-        vectorAcceleration.X = static_cast<int16_t>(dataAcceleration[0] << 8 | dataAcceleration[1]);
-        vectorAcceleration.Y = static_cast<int16_t>(dataAcceleration[2] << 8 | dataAcceleration[3]);
-        vectorAcceleration.Z = static_cast<int16_t>(dataAcceleration[4] << 8 | dataAcceleration[5]);
-
-        return vectorAcceleration;
+        return {
+            .X = static_cast<int16_t>(dataAcceleration[0] << 8 | dataAcceleration[1]),
+            .Y = static_cast<int16_t>(dataAcceleration[2] << 8 | dataAcceleration[3]),
+            .Z = static_cast<int16_t>(dataAcceleration[4] << 8 | dataAcceleration[5])};
     };
 
     Vector3 GetAcceleration()
@@ -75,21 +75,18 @@ public:
         Vector3 vectorAcceleration = GetRawAcceleration();
         vectorAcceleration.X -= _offSetX;
         vectorAcceleration.Y -= _offSetY;
-        vectorAcceleration.Z -= _offSetZ;
+        vectorAcceleration.Z -= _offSetZ;        
 
         return vectorAcceleration;
     };
 
     Vector3 GetGyro()
     {
-        uint8_t dataGyro[6] = {};
-        _communicationI2C.I2cReadRegs(ADD_MPU6050, REG_GYRO_XOUT_H, dataGyro);
+        std::array<uint8_t, 6> dataGyro = _communicationI2C.I2cReadRegs<6>(REG_GYRO_XOUT_H);
 
-        Vector3 vectorGyro;
-        vectorGyro.X = static_cast<int16_t>(dataGyro[0] << 8 | dataGyro[1]);
-        vectorGyro.Y = static_cast<int16_t>(dataGyro[2] << 8 | dataGyro[3]);
-        vectorGyro.Z = static_cast<int16_t>(dataGyro[4] << 8 | dataGyro[5]);
-
-        return vectorGyro;
+        return {
+            .X = static_cast<int16_t>(dataGyro[0] << 8 | dataGyro[1]),
+            .Y = static_cast<int16_t>(dataGyro[2] << 8 | dataGyro[3]),
+            .Z = static_cast<int16_t>(dataGyro[4] << 8 | dataGyro[5])};
     };
 };

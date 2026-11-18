@@ -1,9 +1,10 @@
 #pragma once
-#include <Wire.h>
 #include "Brujula.h"
 #include "Common.h"
 #include "Acelerometro.h"
 #include "Barometro.h"
+#include <esp_timer.h>
+#include <cmath>
 
 class Gy87
 {
@@ -12,7 +13,7 @@ private:
     Acelerometro _acelerometro;
     Barometro _barometro;
 
-    uint32_t _lastMicros;
+    int64_t _lastMicros;
     Vector3F _lastAcceleration;
 
 public:
@@ -22,7 +23,7 @@ public:
         _brujula.Initialize();
         _barometro.Initialice();
 
-        _lastMicros = micros();
+        _lastMicros = ::esp_timer_get_time();
     }
 
     float GetTemprature()
@@ -54,7 +55,7 @@ public:
     {
 
         Vector3F acc = GetAcceleration();
-        uint32_t nowMicro = micros();
+        int64_t nowMicro = ::esp_timer_get_time();
         float dt = static_cast<float>(nowMicro - _lastMicros) / 1000000.0f;
         _lastMicros = nowMicro;
 

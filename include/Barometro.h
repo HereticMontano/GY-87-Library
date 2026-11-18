@@ -1,7 +1,7 @@
 #pragma once
-#include <Wire.h>
 #include "Common.h"
 #include "I2C.h"
+#include <array>
 
 class Barometro
 {
@@ -34,40 +34,39 @@ private:
         int16_t MC = 0;
         int16_t MD = 0;
     };
-    I2C _communicationI2C;
+    I2C _communicationI2C = I2C(ADD_BMP180);
 
     CalibrationParam _calibration;
 
     void IsReady()
     {
-        uint8_t status[1];
+        std::array<uint8_t, 1> status = {};
         do
         {
-            _communicationI2C.I2cReadRegs(ADD_BMP180, REG_CTRL_MEAS, status);
+            status = _communicationI2C.I2cReadRegs<1>(REG_CTRL_MEAS);
         } while ((status[0] & MOD_CTRL_SCO) != 0);
     };
 
     int32_t GetRawTemperature()
     {
-        _communicationI2C.I2cWriteReg(ADD_BMP180, REG_CTRL_MEAS, MOD_CTRL_OSS | MOD_CTRL_TEMPERATURE);
+        _communicationI2C.I2cWriteReg(REG_CTRL_MEAS, MOD_CTRL_OSS | MOD_CTRL_TEMPERATURE);
         IsReady();
 
-        uint8_t data[2];
-        _communicationI2C.I2cReadRegs(ADD_BMP180, REG_OUT_MSB, data);
+        std::array<uint8_t, 2> data = _communicationI2C.I2cReadRegs<2>(REG_OUT_MSB);
 
         return static_cast<int32_t>(data[0] << 8 | data[1]);
     }
 
     int32_t GetRawPresure()
     {
-        _communicationI2C.I2cWriteReg(ADD_BMP180, REG_CTRL_MEAS, MOD_CTRL_OSS | MOD_CTRL_PRESURE);
+        _communicationI2C.I2cWriteReg(REG_CTRL_MEAS, MOD_CTRL_OSS | MOD_CTRL_PRESURE);
         IsReady();
 
-        uint8_t data[3];
-        _communicationI2C.I2cReadRegs(ADD_BMP180, REG_OUT_MSB, data);
+        std::array<uint8_t, 3> data = _communicationI2C.I2cReadRegs<3>(REG_OUT_MSB);
         return ((static_cast<int32_t>(data[0]) << 16) |
                 (static_cast<int32_t>(data[1]) << 8) |
-                static_cast<int32_t>(data[2])) >> (8 - OSS);
+                static_cast<int32_t>(data[2])) >>
+               (8 - OSS);
     }
 
     float Calculate(int32_t ut, int32_t up = 0)
@@ -110,12 +109,11 @@ private:
 public:
     void Initialice()
     {
+        _communicationI2C.Init();
 
-        _communicationI2C.I2cWriteReg(ADD_BMP180, REG_CTRL_MEAS, MOD_CTRL_OSS);
+        _communicationI2C.I2cWriteReg(REG_CTRL_MEAS, MOD_CTRL_OSS);
 
-        uint8_t calibration[22] = {};
-
-        _communicationI2C.I2cReadRegs(ADD_BMP180, REG_CALIBRATION, calibration);
+        std::array<uint8_t, 22> calibration = _communicationI2C.I2cReadRegs<22>(REG_CALIBRATION);
 
         _calibration.AC1 = static_cast<int16_t>(calibration[0] << 8 | calibration[1]);
         _calibration.AC2 = static_cast<int16_t>(calibration[2] << 8 | calibration[3]);
