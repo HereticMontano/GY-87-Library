@@ -20,19 +20,19 @@ extern "C" void app_main(void)
 void loop(Gy87 &gy87)
 {
 
-    printf("Grados N: %d", gy87.GetNPoleRadians());
+    printf("Grados N: %d \n", gy87.GetNPoleRadians());
 
     Vector3 gyro = gy87.GetGyro();
 
-    printf("Gyro X: %d | Gyro  Y: %d | Gyro Z: %d", gyro.X, gyro.Y, gyro.Z);
+    printf("Gyro X: %d | Gyro  Y: %d | Gyro Z: %d \n", gyro.X, gyro.Y, gyro.Z);
 
     Vector3F acceleration = gy87.GetAcceleration();
 
-    printf("V X: %f  | V Y: %f  | V Z: %f", acceleration.X, acceleration.Y, acceleration.Z);
+    printf("V X: %f  | V Y: %f  | V Z: %f \n", acceleration.X, acceleration.Y, acceleration.Z);
 
-    printf("Velocidad: %f m/s", gy87.GetLinearAcceleration());
+    printf("Velocidad: %f m/s \n", gy87.GetLinearAcceleration());
 
-    printf("Cº: %f", gy87.GetTemprature());
+    printf("Cº: %f \n", gy87.GetTemprature());
 
-    printf("hPa: %f", gy87.GetPresure());
+    printf("hPa: %f \n", gy87.GetPresure());
 }
