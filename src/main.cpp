@@ -1,11 +1,12 @@
 #include "Common.h"
 #include "GY-87.h"
+#include <stdio.h>
 
 void loop(Gy87 &gy87);
 
 extern "C" void app_main(void)
 {
-    
+
     Gy87 gy87;
     gy87.Initialice();
 
@@ -14,29 +15,24 @@ extern "C" void app_main(void)
     {
         loop(gy87);
     };
-    
 }
 
 void loop(Gy87 &gy87)
 {
 
-  /*  Serial.println("Grados N: " + String(gy87.GetNPoleRadians()));
+    printf("Grados N: %d", gy87.GetNPoleRadians());
 
     Vector3 gyro = gy87.GetGyro();
 
-    Serial.println("Gyro X: " + String(gyro.X) + " | Gyro  Y: " + String(gyro.Y) +
-                   " | Gyro Z: " + String(gyro.Z));
+    printf("Gyro X: %d | Gyro  Y: %d | Gyro Z: %d", gyro.X, gyro.Y, gyro.Z);
 
     Vector3F acceleration = gy87.GetAcceleration();
 
-    Serial.println("V X: " + String(acceleration.X) + " | V Y: " + String(acceleration.Y) +
-                   " | V Z: " + String(acceleration.Z));
+    printf("V X: %f  | V Y: %f  | V Z: %f", acceleration.X, acceleration.Y, acceleration.Z);
 
-    Serial.println("Velocidad: " + String(gy87.GetLinearAcceleration()) + " m/s");
+    printf("Velocidad: %f m/s", gy87.GetLinearAcceleration());
 
-    Serial.println("Cº: " + String(gy87.GetTemprature()));
+    printf("Cº: %f", gy87.GetTemprature());
 
-    Serial.println("hPa: " + String(gy87.GetPresure()));
-
-    delay(10); */
+    printf("hPa: %f", gy87.GetPresure());
 }
