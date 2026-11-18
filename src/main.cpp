@@ -1,6 +1,6 @@
 #include "Common.h"
 #include "GY-87.h"
-#include <stdio.h>
+
 
 void loop(Gy87 &gy87);
 
@@ -9,12 +9,11 @@ extern "C" void app_main(void)
 
     Gy87 gy87;
     gy87.Initialice();
-
-    // 3. Equivalente a loop()
     while (true)
     {
         loop(gy87);
     };
+
 }
 
 void loop(Gy87 &gy87)
