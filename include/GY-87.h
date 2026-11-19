@@ -91,9 +91,16 @@ public:
                          _lastAcceleration.Z * _lastAcceleration.Z);
     }
 
-    Vector3 GetGyro()
+    Vector3F GetGyro()
     {
-        return _acelerometro.GetGyro();
+        constexpr float GYRO_LSB_1000DPS = 32.8f; // Escala ±1000 °/s
+
+        Vector3 gyro = _acelerometro.GetGyro();
+
+        return {
+            .X = static_cast<float>(gyro.X) / GYRO_LSB_1000DPS,
+            .Y = static_cast<float>(gyro.Y) / GYRO_LSB_1000DPS,
+            .Z = static_cast<float>(gyro.Z) / GYRO_LSB_1000DPS};
     }
 
     int16_t GetNPoleRadians()

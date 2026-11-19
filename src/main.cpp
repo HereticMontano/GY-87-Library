@@ -21,9 +21,9 @@ void loop(Gy87 &gy87)
 
     printf("Grados N: %d \n", gy87.GetNPoleRadians());
 
-    Vector3 gyro = gy87.GetGyro();
+    Vector3F gyro = gy87.GetGyro();
 
-    printf("Gyro X: %d | Gyro  Y: %d | Gyro Z: %d \n", gyro.X, gyro.Y, gyro.Z);
+    printf("Gyro X: %.2f | Gyro  Y: %.2f | Gyro Z: %.2f \n", gyro.X, gyro.Y, gyro.Z);
 
     Vector3F acceleration = gy87.GetAcceleration();
 
